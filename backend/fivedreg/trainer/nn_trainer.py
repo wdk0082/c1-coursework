@@ -20,7 +20,7 @@ class NNTrainer:
         model_class,
         model_config: Dict[str, Any],
         training_config: Optional[Dict[str, Any]] = None,
-        device: Optional[str] = None
+        device: Optional[str] = None,
     ):
         """
         Initialize the trainer.
@@ -45,7 +45,7 @@ class NNTrainer:
 
         # Initialize model
         if callable(model_class):
-            self.model = model_class(model_config)
+            self.model = model_class(**model_config)
         else:
             self.model = model_class
         self.model.to(self.device)
