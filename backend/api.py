@@ -1,6 +1,7 @@
 """FastAPI backend for 5D to 1D regression model training and inference."""
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any
 import numpy as np
@@ -19,6 +20,15 @@ app = FastAPI(
     title="5D Regression API",
     description="API for training and inference on 5D to 1D regression models",
     version="1.0.0"
+)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
 )
 
 # Storage directories
