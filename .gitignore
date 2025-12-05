@@ -209,3 +209,4 @@ __marimo__/
 instructions/
 /data/
 checkpoints/
+.DS_Store

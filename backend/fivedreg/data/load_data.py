@@ -1,6 +1,7 @@
 """Data loading utilities for 5D to 1D interpolation."""
 
 import pickle
+from pathlib import Path
 from typing import Tuple, Literal, Optional, Dict, Any
 import numpy as np
 
@@ -13,10 +14,10 @@ def load_data(
     random_seed: int = 42
 ) -> Dict[str, Any]:
     """
-    Load and validate data from a pickle file for 5D to 1D regression.
+    Load and validate data from a pickle or npz file for 5D to 1D regression.
 
     Args:
-        filepath: Path to the .pkl file containing the data
+        filepath: Path to the .pkl or .npz file containing the data
         missing_strategy: Strategy for handling missing values:
             - "ignore": Remove rows with any missing values (default)
             - "mean": Fill missing values with column mean
@@ -43,17 +44,35 @@ def load_data(
 
     Raises:
         FileNotFoundError: If the file doesn't exist
-        ValueError: If data format is invalid or dimensions don't match
-        KeyError: If expected keys are missing from the pickle file
+        ValueError: If data format is invalid, dimensions don't match, or unsupported file format
+        KeyError: If expected keys are missing from the data file
     """
-    # Load pickle file
+    # Detect file format and load data
+    file_path = Path(filepath)
+    if not file_path.exists():
+        raise FileNotFoundError(f"Data file not found: {filepath}")
+
+    file_extension = file_path.suffix.lower()
+
     try:
-        with open(filepath, 'rb') as f:
-            data = pickle.load(f)
+        if file_extension == '.npz':
+            # Load NPZ file
+            npz_data = np.load(filepath)
+            # Convert NpzFile to dict for consistent processing
+            data = {key: npz_data[key] for key in npz_data.files}
+        elif file_extension == '.pkl' or file_extension == '.pickle':
+            # Load pickle file
+            with open(filepath, 'rb') as f:
+                data = pickle.load(f)
+        else:
+            raise ValueError(
+                f"Unsupported file format: {file_extension}. "
+                f"Supported formats are: .npz, .pkl, .pickle"
+            )
     except FileNotFoundError:
         raise FileNotFoundError(f"Data file not found: {filepath}")
     except Exception as e:
-        raise ValueError(f"Error loading pickle file: {str(e)}")
+        raise ValueError(f"Error loading {file_extension} file: {str(e)}")
 
     # Extract X and y based on common data formats
     if isinstance(data, dict):
@@ -67,13 +86,13 @@ def load_data(
         else:
             raise KeyError(
                 f"Expected keys 'X' and 'y' (or 'inputs'/'outputs' or 'features'/'targets') "
-                f"in pickle file. Found keys: {list(data.keys())}"
+                f"in data file. Found keys: {list(data.keys())}"
             )
     elif isinstance(data, (tuple, list)) and len(data) == 2:
         X, y = data[0], data[1]
     else:
         raise ValueError(
-            f"Expected pickle file to contain either a dict with 'X' and 'y' keys, "
+            f"Expected data file to contain either a dict with 'X' and 'y' keys, "
             f"or a tuple/list of (X, y). Got type: {type(data)}"
         )
 
