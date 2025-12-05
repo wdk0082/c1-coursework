@@ -45,6 +45,9 @@ python api.py
 
 The API will be available at `http://localhost:8000`
 
+**To stop the server:**
+Press `Ctrl+C` (or `Cmd+C` on macOS) in the terminal to gracefully shut down the server.
+
 **Interactive Documentation:**
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
@@ -139,7 +142,8 @@ Train a neural network model on an uploaded dataset.
     "weight_decay": 0.0
   },
   "split_ratios": [0.7, 0.15, 0.15],
-  "standardize": true
+  "standardize": true,
+  "missing_strategy": "ignore"
 }
 ```
 
@@ -157,6 +161,12 @@ Train a neural network model on an uploaded dataset.
   - `weight_decay`: L2 regularization (default: `0.0`)
 - `split_ratios` (optional): `[train, val, test]` ratios (default: `[0.7, 0.15, 0.15]`)
 - `standardize` (optional): Standardize features (default: `true`)
+- `missing_strategy` (optional): Strategy for handling missing values (default: `"ignore"`):
+  - `"ignore"`: Remove rows with any missing values
+  - `"mean"`: Fill missing values with column mean
+  - `"median"`: Fill missing values with column median
+  - `"zero"`: Fill missing values with zeros
+  - `"forward_fill"`: Forward fill missing values
 
 **Response:**
 ```json
@@ -273,6 +283,9 @@ Get detailed information about a specific model.
     "batch_size": 32,
     "epochs": 100
   },
+  "split_ratios": [0.7, 0.15, 0.15],
+  "standardize": true,
+  "missing_strategy": "ignore",
   "best_epoch": 45,
   "best_val_loss": 0.0234,
   "test_metrics": {
@@ -315,7 +328,8 @@ train_config = {
     "training_params": {
         "learning_rate": 0.001,
         "epochs": 50
-    }
+    },
+    "missing_strategy": "mean"  # Handle missing values with column mean
 }
 
 response = requests.post(f"{API_URL}/train", json=train_config)
@@ -349,7 +363,8 @@ curl -X POST http://localhost:8000/train \
   -d '{
     "dataset_id": "dataset_20231204_123456",
     "architecture": {"hidden_dims": [64, 32]},
-    "training_params": {"epochs": 50}
+    "training_params": {"epochs": 50},
+    "missing_strategy": "mean"
   }'
 
 # 3. Make predictions

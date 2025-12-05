@@ -294,9 +294,14 @@ class NNTrainer:
         X_tensor = torch.FloatTensor(X).to(self.device)
 
         with torch.no_grad():
-            predictions = self.model(X_tensor).squeeze()
+            predictions = self.model(X_tensor).squeeze(-1)
 
-        return predictions.cpu().numpy()
+        # Ensure predictions is always 1D, even for single sample
+        predictions_np = predictions.cpu().numpy()
+        if predictions_np.ndim == 0:
+            predictions_np = predictions_np.reshape(1)
+
+        return predictions_np
 
     def save_model(self, filepath: str):
         """

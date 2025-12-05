@@ -210,3 +210,5 @@ instructions/
 /data/
 checkpoints/
 .DS_Store
+*.npz
+/backend/data/

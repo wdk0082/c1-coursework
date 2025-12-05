@@ -60,6 +60,10 @@ class TrainRequest(BaseModel):
         description="Train/Val/Test split ratios"
     )
     standardize: bool = Field(default=True, description="Standardize features")
+    missing_strategy: str = Field(
+        default="ignore",
+        description="Strategy for handling missing values: 'ignore', 'mean', 'median', 'zero', or 'forward_fill'"
+    )
 
 
 class PredictRequest(BaseModel):
@@ -200,6 +204,7 @@ async def train_model(request: TrainRequest):
             - training_params: Training hyperparameters (learning rate, epochs, etc.)
             - split_ratios: Train/Val/Test split ratios
             - standardize: Whether to standardize features
+            - missing_strategy: Strategy for handling missing values ('ignore', 'mean', 'median', 'zero', 'forward_fill')
 
     Returns:
         model_id: Unique identifier for the trained model
@@ -222,6 +227,7 @@ async def train_model(request: TrainRequest):
         # Load dataset with splitting and standardization
         data = load_data(
             dataset_info["filepath"],
+            missing_strategy=request.missing_strategy,
             split_ratios=tuple(request.split_ratios),
             standardize=request.standardize
         )
@@ -271,6 +277,7 @@ async def train_model(request: TrainRequest):
             "training_params": request.training_params,
             "split_ratios": request.split_ratios,
             "standardize": request.standardize,
+            "missing_strategy": request.missing_strategy,
             "scaler": {
                 "mean": scaler["mean"].tolist() if scaler else None,
                 "std": scaler["std"].tolist() if scaler else None
@@ -444,6 +451,7 @@ async def get_model_details(model_id: str):
         "training_params": info["training_params"],
         "split_ratios": info["split_ratios"],
         "standardize": info["standardize"],
+        "missing_strategy": info["missing_strategy"],
         "best_epoch": info["best_epoch"],
         "best_val_loss": info["best_val_loss"],
         "test_metrics": info["test_metrics"],
