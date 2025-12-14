@@ -60,7 +60,6 @@ class TrainRequest(BaseModel):
             "learning_rate": 1e-3,
             "batch_size": 32,
             "epochs": 100,
-            "early_stopping_patience": 10,
             "weight_decay": 0.0
         },
         description="Training hyperparameters"
@@ -92,7 +91,8 @@ class TrainResponse(BaseModel):
     best_val_loss: float
     final_train_loss: float
     test_metrics: Dict[str, float]
-    training_time: str
+    training_time_seconds: float
+    training_memory_mb: float
 
 
 class PredictResponse(BaseModel):
@@ -100,6 +100,7 @@ class PredictResponse(BaseModel):
     model_id: str
     predictions: List[float]
     num_predictions: int
+    inference_memory_mb: float
 
 
 # ==================== Helper Functions ====================
@@ -130,12 +131,12 @@ async def health_check():
 
 @app.post("/upload")
 async def upload_dataset(
-    file: UploadFile = File(..., description="NPZ file containing dataset")
+    file: UploadFile = File(..., description="NPZ or PKL file containing dataset")
 ):
     """
-    Upload a dataset in .npz format.
+    Upload a dataset in .npz or .pkl format.
 
-    The .npz file should contain arrays with keys 'X' and 'y'
+    The file should contain arrays with keys 'X' and 'y'
     (or 'inputs'/'outputs', or 'features'/'targets'):
     - X: shape (n_samples, 5) - 5D input features
     - y: shape (n_samples,) - 1D output targets
@@ -147,18 +148,20 @@ async def upload_dataset(
         uploaded_at: Timestamp of upload
     """
     # Validate file extension
-    if not file.filename.endswith('.npz'):
+    valid_extensions = ('.npz', '.pkl', '.pickle')
+    if not file.filename.endswith(valid_extensions):
         raise HTTPException(
             status_code=400,
-            detail="Only .npz files are supported"
+            detail="Only .npz and .pkl/.pickle files are supported"
         )
 
     # Generate unique dataset ID
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     dataset_id = f"dataset_{timestamp}"
 
-    # Save uploaded file
-    file_path = UPLOAD_DIR / f"{dataset_id}.npz"
+    # Get file extension and save uploaded file
+    file_ext = Path(file.filename).suffix
+    file_path = UPLOAD_DIR / f"{dataset_id}{file_ext}"
     try:
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
@@ -295,6 +298,8 @@ async def train_model(request: TrainRequest):
             "best_epoch": result["best_epoch"],
             "best_val_loss": float(result["best_val_loss"]),
             "test_metrics": {k: float(v) for k, v in test_metrics.items()},
+            "training_time_seconds": float(result["training_time_seconds"]),
+            "training_memory_mb": float(result["training_memory_mb"]),
             "trained_at": timestamp
         }
 
@@ -316,6 +321,9 @@ async def train_model(request: TrainRequest):
         print(f"Test MSE: {test_metrics['mse']:.6f}")
         print(f"Test RMSE: {test_metrics['rmse']:.6f}")
         print(f"Test MAE: {test_metrics['mae']:.6f}")
+        print(f"Test R2: {test_metrics['r2']:.6f}")
+        print(f"Training time: {result['training_time_seconds']:.2f}s")
+        print(f"Training memory: {result['training_memory_mb']:.2f} MB")
         print(f"{'='*60}\n")
 
         return TrainResponse(
@@ -324,7 +332,8 @@ async def train_model(request: TrainRequest):
             best_val_loss=float(result["best_val_loss"]),
             final_train_loss=float(result["history"]["train_loss"][-1]),
             test_metrics={k: float(v) for k, v in test_metrics.items()},
-            training_time=timestamp
+            training_time_seconds=float(result["training_time_seconds"]),
+            training_memory_mb=float(result["training_memory_mb"])
         )
 
     except Exception as e:
@@ -375,14 +384,15 @@ async def predict(request: PredictRequest):
             std = np.array(scaler["std"])
             X = (X - mean) / std
 
-        # Make predictions
+        # Make predictions with memory tracking
         trainer = model_info["trainer"]
-        predictions = trainer.predict(X)
+        predictions, inference_memory_mb = trainer.predict(X, track_memory=True)
 
         return PredictResponse(
             model_id=request.model_id,
             predictions=predictions.tolist(),
-            num_predictions=len(predictions)
+            num_predictions=len(predictions),
+            inference_memory_mb=inference_memory_mb
         )
 
     except Exception as e:
@@ -428,6 +438,8 @@ async def list_models():
                 "best_epoch": info["best_epoch"],
                 "best_val_loss": info["best_val_loss"],
                 "test_metrics": info["test_metrics"],
+                "training_time_seconds": info.get("training_time_seconds", 0),
+                "training_memory_mb": info.get("training_memory_mb", 0),
                 "trained_at": info["trained_at"]
             }
             for model_id, info in models.items()
@@ -465,6 +477,8 @@ async def get_model_details(model_id: str):
         "best_epoch": info["best_epoch"],
         "best_val_loss": info["best_val_loss"],
         "test_metrics": info["test_metrics"],
+        "training_time_seconds": info.get("training_time_seconds", 0),
+        "training_memory_mb": info.get("training_memory_mb", 0),
         "trained_at": info["trained_at"]
     }
 

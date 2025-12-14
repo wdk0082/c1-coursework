@@ -6,6 +6,8 @@ import torch
 import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
 from pathlib import Path
+import time
+import tracemalloc
 
 
 class NNTrainer:
@@ -32,7 +34,6 @@ class NNTrainer:
                 - "learning_rate": float (default: 1e-3)
                 - "batch_size": int (default: 32)
                 - "epochs": int (default: 100)
-                - "early_stopping_patience": int (default: 10, 0 to disable)
                 - "weight_decay": float (default: 0.0)
                 - "checkpoint_dir": str (default: "./checkpoints")
             device: Device to use ('cuda', 'cpu', or None for auto-detect)
@@ -55,7 +56,6 @@ class NNTrainer:
         self.learning_rate = self.training_config.get("learning_rate", 1e-3)
         self.batch_size = self.training_config.get("batch_size", 32)
         self.epochs = self.training_config.get("epochs", 100)
-        self.early_stopping_patience = self.training_config.get("early_stopping_patience", 10)
         self.weight_decay = self.training_config.get("weight_decay", 0.0)
         self.checkpoint_dir = Path(self.training_config.get("checkpoint_dir", "./checkpoints"))
 
@@ -103,7 +103,13 @@ class NNTrainer:
                 - "history": Training history
                 - "best_epoch": Epoch with best validation loss
                 - "best_val_loss": Best validation loss achieved
+                - "training_time_seconds": Training time in seconds
+                - "training_memory_mb": Peak memory usage during training in MB
         """
+        # Start tracking time and memory
+        start_time = time.time()
+        tracemalloc.start()
+
         # Prepare data loaders
         train_loader = self._create_dataloader(X_train, y_train, shuffle=True)
 
@@ -112,9 +118,8 @@ class NNTrainer:
         else:
             val_loader = None
 
-        # Early stopping setup
+        # Best model tracking
         best_val_loss = float('inf')
-        patience_counter = 0
         best_epoch = 0
 
         # Training loop
@@ -128,15 +133,12 @@ class NNTrainer:
                 val_loss = self._validate(val_loader)
                 self.history["val_loss"].append(val_loss)
 
-                # Early stopping check
+                # Track best model
                 if val_loss < best_val_loss:
                     best_val_loss = val_loss
                     best_epoch = epoch
-                    patience_counter = 0
                     # Save best model
                     self._save_checkpoint(epoch, val_loss, best=True)
-                else:
-                    patience_counter += 1
 
                 # Print progress
                 if verbose and (epoch + 1) % 10 == 0:
@@ -145,12 +147,6 @@ class NNTrainer:
                         f"Train Loss: {train_loss:.6f} | "
                         f"Val Loss: {val_loss:.6f}"
                     )
-
-                # Early stopping
-                if self.early_stopping_patience > 0 and patience_counter >= self.early_stopping_patience:
-                    if verbose:
-                        print(f"Early stopping triggered at epoch {epoch+1}")
-                    break
             else:
                 # No validation set
                 if verbose and (epoch + 1) % 10 == 0:
@@ -167,11 +163,23 @@ class NNTrainer:
             if verbose:
                 print(f"\nTraining completed!")
 
+        # Stop tracking time and memory
+        training_time_seconds = time.time() - start_time
+        _, peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+        training_memory_mb = peak / (1024 * 1024)
+
+        if verbose:
+            print(f"Training time: {training_time_seconds:.2f}s")
+            print(f"Peak memory: {training_memory_mb:.2f} MB")
+
         return {
             "model": self.model,
             "history": self.history,
             "best_epoch": best_epoch,
-            "best_val_loss": best_val_loss
+            "best_val_loss": best_val_loss,
+            "training_time_seconds": training_time_seconds,
+            "training_memory_mb": training_memory_mb
         }
 
     def _train_epoch(self, train_loader: DataLoader) -> float:
@@ -261,6 +269,7 @@ class NNTrainer:
                 - "mse": Mean Squared Error
                 - "rmse": Root Mean Squared Error
                 - "mae": Mean Absolute Error
+                - "r2": R-squared (coefficient of determination)
         """
         self.model.eval()
 
@@ -274,22 +283,33 @@ class NNTrainer:
         mae = nn.L1Loss()(predictions, y_tensor).item()
         rmse = np.sqrt(mse)
 
+        # Calculate R2 score
+        ss_res = torch.sum((y_tensor - predictions) ** 2).item()
+        ss_tot = torch.sum((y_tensor - y_tensor.mean()) ** 2).item()
+        r2 = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+
         return {
             "mse": mse,
             "rmse": rmse,
-            "mae": mae
+            "mae": mae,
+            "r2": r2
         }
 
-    def predict(self, X: np.ndarray) -> np.ndarray:
+    def predict(self, X: np.ndarray, track_memory: bool = False) -> np.ndarray | tuple:
         """
         Make predictions on new data.
 
         Args:
             X: Input features of shape (n_samples, 5)
+            track_memory: If True, also return memory usage in MB
 
         Returns:
-            Predictions as numpy array of shape (n_samples,)
+            If track_memory is False: Predictions as numpy array of shape (n_samples,)
+            If track_memory is True: Tuple of (predictions, memory_mb)
         """
+        if track_memory:
+            tracemalloc.start()
+
         self.model.eval()
         X_tensor = torch.FloatTensor(X).to(self.device)
 
@@ -300,6 +320,12 @@ class NNTrainer:
         predictions_np = predictions.cpu().numpy()
         if predictions_np.ndim == 0:
             predictions_np = predictions_np.reshape(1)
+
+        if track_memory:
+            _, peak = tracemalloc.get_traced_memory()
+            tracemalloc.stop()
+            memory_mb = peak / (1024 * 1024)
+            return predictions_np, memory_mb
 
         return predictions_np
 

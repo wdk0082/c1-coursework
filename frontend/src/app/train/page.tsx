@@ -19,7 +19,6 @@ export default function TrainModel() {
   const [learningRate, setLearningRate] = useState('0.001');
   const [batchSize, setBatchSize] = useState('32');
   const [epochs, setEpochs] = useState('100');
-  const [earlyStoppingPatience, setEarlyStoppingPatience] = useState('10');
   const [weightDecay, setWeightDecay] = useState('0.0');
   const [splitRatios, setSplitRatios] = useState('0.7,0.15,0.15');
   const [standardize, setStandardize] = useState(true);
@@ -68,7 +67,6 @@ export default function TrainModel() {
           learning_rate: parseFloat(learningRate),
           batch_size: parseInt(batchSize),
           epochs: parseInt(epochs),
-          early_stopping_patience: parseInt(earlyStoppingPatience),
           weight_decay: parseFloat(weightDecay),
         },
         split_ratios: splitRatios.split(',').map(r => parseFloat(r.trim())),
@@ -208,17 +206,6 @@ export default function TrainModel() {
               </div>
 
               <div>
-                <label className="label">Early Stopping Patience</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={earlyStoppingPatience}
-                  onChange={(e) => setEarlyStoppingPatience(e.target.value)}
-                  className="input-field"
-                />
-              </div>
-
-              <div>
                 <label className="label">Weight Decay</label>
                 <input
                   type="number"
@@ -287,7 +274,7 @@ export default function TrainModel() {
           {result && (
             <div className="card mb-6 bg-green-50 border-2 border-green-200">
               <h3 className="text-xl font-semibold text-green-800 mb-4">Training Complete!</h3>
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                 <div>
                   <p className="text-gray-600">Model ID</p>
                   <p className="font-mono font-medium">{result.model_id}</p>
@@ -315,6 +302,18 @@ export default function TrainModel() {
                 <div>
                   <p className="text-gray-600">Test MAE</p>
                   <p className="font-medium">{result.test_metrics.mae.toFixed(6)}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Test R²</p>
+                  <p className="font-medium">{result.test_metrics.r2.toFixed(6)}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Training Time</p>
+                  <p className="font-medium">{result.training_time_seconds.toFixed(2)}s</p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Training Memory</p>
+                  <p className="font-medium">{result.training_memory_mb.toFixed(2)} MB</p>
                 </div>
               </div>
               <div className="mt-4">

@@ -100,7 +100,7 @@ export default function Models() {
                         <p className="text-xs">{new Date(model.trained_at.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3T$4:$5:$6')).toLocaleString()}</p>
                       </div>
                     </div>
-                    <div className="flex space-x-6 text-sm">
+                    <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
                       <div>
                         <span className="text-gray-600">MSE:</span>{' '}
                         <span className="font-semibold">{model.test_metrics.mse.toFixed(6)}</span>
@@ -112,6 +112,18 @@ export default function Models() {
                       <div>
                         <span className="text-gray-600">MAE:</span>{' '}
                         <span className="font-semibold">{model.test_metrics.mae.toFixed(6)}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">R²:</span>{' '}
+                        <span className="font-semibold">{model.test_metrics.r2.toFixed(6)}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Time:</span>{' '}
+                        <span className="font-semibold">{model.training_time_seconds.toFixed(2)}s</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Memory:</span>{' '}
+                        <span className="font-semibold">{model.training_memory_mb.toFixed(2)} MB</span>
                       </div>
                     </div>
                   </div>
