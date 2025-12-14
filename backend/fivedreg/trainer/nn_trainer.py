@@ -79,7 +79,7 @@ class NNTrainer:
         print(f"Trainer initialized on device: {self.device}")
         print(f"Model: {self.model}")
 
-    def train(
+    def fit(
         self,
         X_train: np.ndarray,
         y_train: np.ndarray,

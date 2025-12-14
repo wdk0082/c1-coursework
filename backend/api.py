@@ -260,7 +260,7 @@ async def train_model(request: TrainRequest):
         print(f"Training model on dataset: {request.dataset_id}")
         print(f"{'='*60}")
 
-        result = trainer.train(
+        result = trainer.fit(
             X_train=X_train,
             y_train=y_train,
             X_val=X_val,
