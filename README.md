@@ -15,22 +15,22 @@ This application provides an end-to-end machine learning workflow for regression
 
 ```
 c1-coursework/
-├── backend/                    # FastAPI backend
+├── backend/                    # Core ML library and FastAPI backend
 │   ├── api.py                  # API endpoints
 │   ├── fivedreg/               # Core ML library
-│   │   ├── data/               # Data loading utilities
-│   │   ├── model/              # Neural network models
-│   │   └── trainer/            # Training utilities
+│   │   ├── data/               
+│   │   ├── model/              
+│   │   └── trainer/            
 │   ├── test/                   # Test suite
 │   └── docs/                   # Sphinx documentation
 ├── frontend/                   # Next.js frontend
 │   └── src/
-│       ├── app/                # Pages (dashboard, upload, train, predict, models)
-│       ├── components/         # React components
-│       └── lib/api/            # API client
+│       ├── app/                
+│       ├── components/         
+│       └── lib/api/            
 ├── profiling/                  # Performance profiling
-│   ├── data/                   # Profiling datasets
-│   └── results/                # Profiling results
+│   ├── data/                   
+│   └── results/                
 ├── scripts/                    # Utility scripts
 └── docker-compose.yml          # Docker orchestration
 ```
