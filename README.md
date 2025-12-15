@@ -1,6 +1,27 @@
 # 5D Regression
 
-A full-stack application for training and deploying neural network models that perform 5-dimensional to 1-dimensional regression. The project consists of a FastAPI backend for model training and inference, and a Next.js frontend for interactive dataset management and model exploration.
+A full-stack application for training and deploying neural network models that perform 5-dimensional to 1-dimensional regression. The project consists of a FastAPI backend for model training and inference, and a Next.js frontend for interactive dataset management and model exploration. It includes a comprehensive test suite with coverage reporting and performance profiling tools for benchmarking model training across different dataset sizes and configurations.
+
+## Table of Contents
+
+- [5D Regression](#5d-regression)
+  - [Table of Contents](#table-of-contents)
+  - [1. Project Description](#1-project-description)
+    - [Architecture](#architecture)
+    - [Tech Stack](#tech-stack)
+  - [2. Quick Start Guide](#2-quick-start-guide)
+    - [Option 1: Docker (Recommended)](#option-1-docker-recommended)
+    - [Option 2: Local Deployment](#option-2-local-deployment)
+    - [Basic Workflow](#basic-workflow)
+    - [Creating a Sample Dataset](#creating-a-sample-dataset)
+  - [3. Local Deployment](#3-local-deployment)
+    - [Prerequisites](#prerequisites)
+    - [Setup (for MacOS)](#setup-for-macos)
+    - [Running the Application](#running-the-application)
+  - [4. Test Suite (Local Deployment Required)](#4-test-suite-local-deployment-required)
+    - [Running Tests](#running-tests)
+    - [Test Structure](#test-structure)
+  - [5. License](#5-license)
 
 ## 1. Project Description
 
@@ -60,7 +81,6 @@ To stop the application:
 
 - Backend API: http://localhost:8000
 - Frontend: http://localhost:3000
-- API Documentation: http://localhost:8000/docs
 
 ### Option 2: Local Deployment
 
@@ -126,8 +146,7 @@ cd c1-coursework
    ```bash
    # Backend dependencies (including docs and test)
    cd backend
-   pip install -e ".[docs]"
-   pip install pytest pytest-cov httpx
+   pip install -e ".[docs,test]"
    cd ..
 
    # Frontend dependencies
@@ -161,7 +180,6 @@ cd c1-coursework
 
 - Backend API: http://localhost:8000
 - Frontend: http://localhost:3000
-- API Documentation: http://localhost:8000/docs
 
 ## 4. Test Suite (Local Deployment Required)
 
@@ -213,5 +231,3 @@ backend/test/
 ## 5. License
 
 MIT License - see [LICENSE](LICENSE) for details.
-
-Academic project for Cambridge C1 coursework.

@@ -26,8 +26,7 @@ source .venv/bin/activate
 # Install backend dependencies (including docs and test)
 echo "Installing backend dependencies..."
 cd backend
-pip install -e ".[docs]"
-pip install pytest pytest-cov httpx
+pip install -e ".[docs,test]"
 cd ..
 
 # Install frontend dependencies
