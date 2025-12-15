@@ -13,8 +13,10 @@ export default function UploadDataset() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      if (!selectedFile.name.endsWith('.npz')) {
-        setError('Please select a .npz file');
+      const validExtensions = ['.npz', '.pkl', '.pickle'];
+      const hasValidExt = validExtensions.some(ext => selectedFile.name.endsWith(ext));
+      if (!hasValidExt) {
+        setError('Please select a .npz or .pkl file');
         setFile(null);
         return;
       }
@@ -56,7 +58,7 @@ export default function UploadDataset() {
           Dataset Requirements
         </h2>
         <div className="space-y-2 text-sm text-gray-600">
-          <p>• File format: <span className="font-mono bg-gray-100 px-2 py-1 rounded">.npz</span></p>
+          <p>• File format: <span className="font-mono bg-gray-100 px-2 py-1 rounded">.npz</span> or <span className="font-mono bg-gray-100 px-2 py-1 rounded">.pkl</span></p>
           <p>• Required keys: <span className="font-mono bg-gray-100 px-2 py-1 rounded">X</span> and <span className="font-mono bg-gray-100 px-2 py-1 rounded">y</span></p>
           <p>• X shape: <span className="font-mono bg-gray-100 px-2 py-1 rounded">(n_samples, 5)</span> - 5D input features</p>
           <p>• y shape: <span className="font-mono bg-gray-100 px-2 py-1 rounded">(n_samples,)</span> - 1D output targets</p>
@@ -73,12 +75,12 @@ export default function UploadDataset() {
 
         <div className="mb-4">
           <label htmlFor="file-input" className="label">
-            Select .npz file
+            Select .npz or .pkl file
           </label>
           <input
             id="file-input"
             type="file"
-            accept=".npz"
+            accept=".npz,.pkl,.pickle"
             onChange={handleFileChange}
             className="input-field"
             disabled={uploading}
@@ -130,13 +132,18 @@ export default function UploadDataset() {
         </h2>
         <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
 {`import numpy as np
+import pickle
 
 # Create sample data
 X = np.random.randn(1000, 5)  # 1000 samples, 5 features
 y = X[:, 0] * 2 + X[:, 1] * 3 - X[:, 2]  # Linear combination
 
 # Save as .npz
-np.savez('my_dataset.npz', X=X, y=y)`}
+np.savez('my_dataset.npz', X=X, y=y)
+
+# Or save as .pkl
+with open('my_dataset.pkl', 'wb') as f:
+    pickle.dump({'X': X, 'y': y}, f)`}
         </pre>
       </div>
     </div>

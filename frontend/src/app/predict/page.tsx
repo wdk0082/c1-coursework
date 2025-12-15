@@ -13,13 +13,11 @@ export default function Predict() {
 
   // Form state
   const [modelId, setModelId] = useState('');
-  const [inputType, setInputType] = useState<'single' | 'multiple'>('single');
   const [input1, setInput1] = useState('');
   const [input2, setInput2] = useState('');
   const [input3, setInput3] = useState('');
   const [input4, setInput4] = useState('');
   const [input5, setInput5] = useState('');
-  const [multipleInputs, setMultipleInputs] = useState('');
 
   useEffect(() => {
     fetchModels();
@@ -53,27 +51,13 @@ export default function Predict() {
       setError(null);
       setResult(null);
 
-      let inputs: number[][];
-
-      if (inputType === 'single') {
-        inputs = [[
-          parseFloat(input1),
-          parseFloat(input2),
-          parseFloat(input3),
-          parseFloat(input4),
-          parseFloat(input5),
-        ]];
-      } else {
-        // Parse multiple inputs (one vector per line)
-        const lines = multipleInputs.trim().split('\n');
-        inputs = lines.map(line => {
-          const values = line.trim().split(/[,\s]+/).map(v => parseFloat(v));
-          if (values.length !== 5) {
-            throw new Error(`Each input must have exactly 5 values, got ${values.length}`);
-          }
-          return values;
-        });
-      }
+      const inputs: number[][] = [[
+        parseFloat(input1),
+        parseFloat(input2),
+        parseFloat(input3),
+        parseFloat(input4),
+        parseFloat(input5),
+      ]];
 
       const request: PredictRequest = {
         model_id: modelId,
@@ -128,118 +112,71 @@ export default function Predict() {
             </div>
           </div>
 
-          {/* Input Type Selection */}
-          <div className="card mb-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Input Type</h2>
-            <div className="flex space-x-4">
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  value="single"
-                  checked={inputType === 'single'}
-                  onChange={(e) => setInputType('single')}
-                  className="h-4 w-4 text-blue-600"
-                />
-                <span className="ml-2">Single Input</span>
-              </label>
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  value="multiple"
-                  checked={inputType === 'multiple'}
-                  onChange={(e) => setInputType('multiple')}
-                  className="h-4 w-4 text-blue-600"
-                />
-                <span className="ml-2">Multiple Inputs</span>
-              </label>
-            </div>
-          </div>
-
           {/* Input Fields */}
           <div className="card mb-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Input Values</h2>
-
-            {inputType === 'single' ? (
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                <div>
-                  <label className="label">Feature 1</label>
-                  <input
-                    type="number"
-                    step="any"
-                    value={input1}
-                    onChange={(e) => setInput1(e.target.value)}
-                    className="input-field"
-                    placeholder="0.0"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="label">Feature 2</label>
-                  <input
-                    type="number"
-                    step="any"
-                    value={input2}
-                    onChange={(e) => setInput2(e.target.value)}
-                    className="input-field"
-                    placeholder="0.0"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="label">Feature 3</label>
-                  <input
-                    type="number"
-                    step="any"
-                    value={input3}
-                    onChange={(e) => setInput3(e.target.value)}
-                    className="input-field"
-                    placeholder="0.0"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="label">Feature 4</label>
-                  <input
-                    type="number"
-                    step="any"
-                    value={input4}
-                    onChange={(e) => setInput4(e.target.value)}
-                    className="input-field"
-                    placeholder="0.0"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="label">Feature 5</label>
-                  <input
-                    type="number"
-                    step="any"
-                    value={input5}
-                    onChange={(e) => setInput5(e.target.value)}
-                    className="input-field"
-                    placeholder="0.0"
-                    required
-                  />
-                </div>
-              </div>
-            ) : (
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Input Values (5 Features)</h2>
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <div>
-                <label className="label">
-                  Multiple Inputs (one vector per line, 5 values each)
-                </label>
-                <textarea
-                  value={multipleInputs}
-                  onChange={(e) => setMultipleInputs(e.target.value)}
-                  className="input-field font-mono"
-                  rows={8}
-                  placeholder="1.0 2.0 3.0 4.0 5.0&#10;0.5 1.5 2.5 3.5 4.5&#10;-1.0 0.0 1.0 2.0 3.0"
+                <label className="label">Feature 1</label>
+                <input
+                  type="number"
+                  step="any"
+                  value={input1}
+                  onChange={(e) => setInput1(e.target.value)}
+                  className="input-field"
+                  placeholder="0.0"
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Separate values with spaces or commas. One input vector per line.
-                </p>
               </div>
-            )}
+              <div>
+                <label className="label">Feature 2</label>
+                <input
+                  type="number"
+                  step="any"
+                  value={input2}
+                  onChange={(e) => setInput2(e.target.value)}
+                  className="input-field"
+                  placeholder="0.0"
+                  required
+                />
+              </div>
+              <div>
+                <label className="label">Feature 3</label>
+                <input
+                  type="number"
+                  step="any"
+                  value={input3}
+                  onChange={(e) => setInput3(e.target.value)}
+                  className="input-field"
+                  placeholder="0.0"
+                  required
+                />
+              </div>
+              <div>
+                <label className="label">Feature 4</label>
+                <input
+                  type="number"
+                  step="any"
+                  value={input4}
+                  onChange={(e) => setInput4(e.target.value)}
+                  className="input-field"
+                  placeholder="0.0"
+                  required
+                />
+              </div>
+              <div>
+                <label className="label">Feature 5</label>
+                <input
+                  type="number"
+                  step="any"
+                  value={input5}
+                  onChange={(e) => setInput5(e.target.value)}
+                  className="input-field"
+                  placeholder="0.0"
+                  required
+                />
+              </div>
+            </div>
           </div>
 
           {/* Error/Success Messages */}
@@ -251,24 +188,19 @@ export default function Predict() {
 
           {result && (
             <div className="card mb-6 bg-blue-50 border-2 border-blue-200">
-              <h3 className="text-xl font-semibold text-blue-800 mb-4">Predictions</h3>
+              <h3 className="text-xl font-semibold text-blue-800 mb-4">Prediction Result</h3>
               <div className="space-y-3">
                 <div>
                   <p className="text-sm text-gray-600">Model ID</p>
                   <p className="font-mono text-sm">{result.model_id}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-2">
-                    Results ({result.num_predictions} prediction{result.num_predictions > 1 ? 's' : ''})
-                  </p>
-                  <div className="bg-white rounded-lg p-4 max-h-64 overflow-y-auto">
-                    {result.predictions.map((pred, idx) => (
-                      <div key={idx} className="flex items-center justify-between py-2 border-b last:border-b-0">
-                        <span className="text-gray-600">Prediction {idx + 1}:</span>
-                        <span className="font-semibold text-lg">{pred.toFixed(6)}</span>
-                      </div>
-                    ))}
-                  </div>
+                  <p className="text-sm text-gray-600">Predicted Value</p>
+                  <p className="font-semibold text-2xl text-blue-800">{result.predictions[0].toFixed(6)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Inference Memory</p>
+                  <p className="font-medium text-sm">{result.inference_memory_mb.toFixed(4)} MB</p>
                 </div>
               </div>
             </div>

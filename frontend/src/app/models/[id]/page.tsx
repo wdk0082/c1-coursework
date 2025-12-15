@@ -126,10 +126,6 @@ export default function ModelDetail() {
             <p className="font-semibold">{model.training_params.epochs}</p>
           </div>
           <div className="bg-gray-50 p-3 rounded">
-            <p className="text-sm text-gray-600">Early Stopping Patience</p>
-            <p className="font-semibold">{model.training_params.early_stopping_patience}</p>
-          </div>
-          <div className="bg-gray-50 p-3 rounded">
             <p className="text-sm text-gray-600">Weight Decay</p>
             <p className="font-semibold">{model.training_params.weight_decay}</p>
           </div>
@@ -162,7 +158,7 @@ export default function ModelDetail() {
       {/* Test Metrics */}
       <div className="card mb-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-3">Performance Metrics</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-sm text-gray-600">Best Val Loss</p>
             <p className="text-2xl font-bold text-blue-600">{model.best_val_loss.toFixed(6)}</p>
@@ -178,6 +174,18 @@ export default function ModelDetail() {
           <div className="bg-orange-50 p-4 rounded-lg">
             <p className="text-sm text-gray-600">Test MAE</p>
             <p className="text-2xl font-bold text-orange-600">{model.test_metrics.mae.toFixed(6)}</p>
+          </div>
+          <div className="bg-teal-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600">Test R²</p>
+            <p className="text-2xl font-bold text-teal-600">{model.test_metrics.r2.toFixed(6)}</p>
+          </div>
+          <div className="bg-indigo-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600">Training Time</p>
+            <p className="text-2xl font-bold text-indigo-600">{model.training_time_seconds.toFixed(2)}s</p>
+          </div>
+          <div className="bg-pink-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600">Training Memory</p>
+            <p className="text-2xl font-bold text-pink-600">{model.training_memory_mb.toFixed(2)} MB</p>
           </div>
         </div>
       </div>

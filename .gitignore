@@ -208,7 +208,15 @@ __marimo__/
 
 instructions/
 /data/
+/profiling/data/
 checkpoints/
 .DS_Store
 *.npz
+*.csv
+*.png
+
+_build/
+_static/
+_templates/
+
 /backend/data/

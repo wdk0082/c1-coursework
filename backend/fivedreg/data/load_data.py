@@ -1,4 +1,9 @@
-"""Data loading utilities for 5D to 1D interpolation."""
+"""
+Data loading utilities for 5D to 1D regression.
+
+This module provides functions for loading, validating, and preprocessing
+data from pickle or npz files.
+"""
 
 import pickle
 from pathlib import Path
@@ -16,36 +21,73 @@ def load_data(
     """
     Load and validate data from a pickle or npz file for 5D to 1D regression.
 
-    Args:
-        filepath: Path to the .pkl or .npz file containing the data
-        missing_strategy: Strategy for handling missing values:
-            - "ignore": Remove rows with any missing values (default)
-            - "mean": Fill missing values with column mean
-            - "median": Fill missing values with column median
-            - "zero": Fill missing values with zeros
-            - "forward_fill": Forward fill missing values
-        standardize: If True, standardize features to zero mean and unit variance
-        split_ratios: Optional tuple of (train, val, test) ratios that sum to 1.0.
-            If None, returns full dataset. Example: (0.7, 0.15, 0.15)
-        random_seed: Random seed for reproducible splits (default: 42)
+    Parameters
+    ----------
+    filepath : str
+        Path to the .pkl or .npz file containing the data.
+    missing_strategy : {'ignore', 'mean', 'median', 'zero', 'forward_fill'}, default='ignore'
+        Strategy for handling missing values:
 
-    Returns:
-        Dictionary containing:
-            If split_ratios is None:
-                - "X": numpy array of shape (n_samples, 5) - input features
-                - "y": numpy array of shape (n_samples,) - output targets
-                - "scaler": dict with "mean" and "std" if standardize=True, else None
+        - 'ignore': Remove rows with any missing values
+        - 'mean': Fill missing values with column mean
+        - 'median': Fill missing values with column median
+        - 'zero': Fill missing values with zeros
+        - 'forward_fill': Forward fill missing values
 
-            If split_ratios is provided:
-                - "X_train", "y_train": Training data
-                - "X_val", "y_val": Validation data
-                - "X_test", "y_test": Test data
-                - "scaler": dict with "mean" and "std" if standardize=True, else None
+    standardize : bool, default=False
+        If True, standardize features to zero mean and unit variance.
+    split_ratios : tuple of float, optional
+        Tuple of (train, val, test) ratios that must sum to 1.0.
+        If None, returns the full dataset. Example: (0.7, 0.15, 0.15).
+    random_seed : int, default=42
+        Random seed for reproducible splits.
 
-    Raises:
-        FileNotFoundError: If the file doesn't exist
-        ValueError: If data format is invalid, dimensions don't match, or unsupported file format
-        KeyError: If expected keys are missing from the data file
+    Returns
+    -------
+    dict
+        Dictionary containing the loaded data:
+
+        If ``split_ratios`` is None:
+            - **X** : ndarray of shape (n_samples, 5) - Input features
+            - **y** : ndarray of shape (n_samples,) - Output targets
+            - **scaler** : dict or None - Contains 'mean' and 'std' if standardize=True
+
+        If ``split_ratios`` is provided:
+            - **X_train**, **y_train** : Training data
+            - **X_val**, **y_val** : Validation data
+            - **X_test**, **y_test** : Test data
+            - **scaler** : dict or None - Scaler fitted on training data only
+
+    Raises
+    ------
+    FileNotFoundError
+        If the specified file does not exist.
+    ValueError
+        If data format is invalid, dimensions don't match, or file format is unsupported.
+    KeyError
+        If expected keys ('X'/'y', 'inputs'/'outputs', or 'features'/'targets')
+        are missing from the data file.
+
+    Examples
+    --------
+    Load data without splitting:
+
+    >>> data = load_data("data.pkl")
+    >>> X, y = data["X"], data["y"]
+
+    Load with train/val/test split and standardization:
+
+    >>> data = load_data(
+    ...     "data.pkl",
+    ...     standardize=True,
+    ...     split_ratios=(0.7, 0.15, 0.15)
+    ... )
+    >>> X_train, y_train = data["X_train"], data["y_train"]
+
+    Notes
+    -----
+    When ``standardize=True`` and ``split_ratios`` is provided, the scaler
+    is fitted only on the training data to prevent data leakage.
     """
     # Detect file format and load data
     file_path = Path(filepath)
@@ -174,13 +216,21 @@ def _handle_missing_values(
     """
     Handle missing values in the dataset according to the specified strategy.
 
-    Args:
-        X: Input features
-        y: Output targets
-        strategy: Missing value handling strategy
+    Parameters
+    ----------
+    X : ndarray
+        Input features of shape (n_samples, n_features).
+    y : ndarray
+        Output targets of shape (n_samples,).
+    strategy : str
+        Missing value handling strategy.
 
-    Returns:
-        Tuple of (X, y) with missing values handled
+    Returns
+    -------
+    X_clean : ndarray
+        Input features with missing values handled.
+    y_clean : ndarray
+        Output targets with missing values handled.
     """
     if strategy == "ignore":
         # Remove rows with any missing values
@@ -256,13 +306,21 @@ def _standardize_features(
     """
     Standardize features to zero mean and unit variance.
 
-    Args:
-        X: Input features
-        fit: If True, compute mean and std from X. If False, use provided scaler
-        scaler: Dictionary with "mean" and "std" arrays (required if fit=False)
+    Parameters
+    ----------
+    X : ndarray
+        Input features of shape (n_samples, n_features).
+    fit : bool, default=True
+        If True, compute mean and std from X. If False, use provided scaler.
+    scaler : dict, optional
+        Dictionary with 'mean' and 'std' arrays. Required if fit=False.
 
-    Returns:
-        Tuple of (standardized X, scaler dict)
+    Returns
+    -------
+    X_standardized : ndarray
+        Standardized features with zero mean and unit variance.
+    scaler : dict or None
+        Dictionary containing 'mean' and 'std' arrays used for transformation.
     """
     if fit:
         mean = np.mean(X, axis=0)
@@ -289,14 +347,31 @@ def _split_data(
     """
     Split data into train, validation, and test sets.
 
-    Args:
-        X: Input features
-        y: Output targets
-        split_ratios: Tuple of (train, val, test) ratios
-        random_seed: Random seed for reproducibility
+    Parameters
+    ----------
+    X : ndarray
+        Input features of shape (n_samples, n_features).
+    y : ndarray
+        Output targets of shape (n_samples,).
+    split_ratios : tuple of float
+        Tuple of (train, val, test) ratios that sum to 1.0.
+    random_seed : int
+        Random seed for reproducibility.
 
-    Returns:
-        Tuple of (X_train, X_val, X_test, y_train, y_val, y_test)
+    Returns
+    -------
+    X_train : ndarray
+        Training features.
+    X_val : ndarray
+        Validation features.
+    X_test : ndarray
+        Test features.
+    y_train : ndarray
+        Training targets.
+    y_val : ndarray
+        Validation targets.
+    y_test : ndarray
+        Test targets.
     """
     n_samples = len(X)
     train_ratio, val_ratio, _ = split_ratios  # test_ratio not needed (implicit)
