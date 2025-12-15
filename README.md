@@ -2,11 +2,11 @@
 
 A full-stack application for training and deploying neural network models that perform 5-dimensional to 1-dimensional regression. The project consists of a FastAPI backend for model training and inference, and a Next.js frontend for interactive dataset management and model exploration.
 
-## Project Description
+## 1. Project Description
 
 This application provides an end-to-end machine learning workflow for regression tasks:
 
-- **Dataset Management**: Upload `.npz` datasets containing 5D input features and 1D targets
+- **Dataset Management**: Upload `.pkl` datasets containing 5D input features and 1D targets
 - **Model Training**: Train configurable neural networks with customizable architecture (hidden layers, activation functions, dropout) and training parameters (learning rate, batch size, epochs, early stopping)
 - **Predictions**: Make single or batch predictions using trained models
 - **Data Processing**: Built-in support for data standardization and missing value handling strategies
@@ -16,18 +16,21 @@ This application provides an end-to-end machine learning workflow for regression
 ```
 c1-coursework/
 ├── backend/                    # FastAPI backend
-│   ├── api.py                 # API endpoints
-│   ├── fivedreg/              # Core ML library
-│   │   ├── data/              # Data loading utilities
-│   │   ├── model/             # Neural network models
-│   │   └── trainer/           # Training utilities
-│   ├── test/                  # Test suite
-│   └── docs/                  # Sphinx documentation
+│   ├── api.py                  # API endpoints
+│   ├── fivedreg/               # Core ML library
+│   │   ├── data/               # Data loading utilities
+│   │   ├── model/              # Neural network models
+│   │   └── trainer/            # Training utilities
+│   ├── test/                   # Test suite
+│   └── docs/                   # Sphinx documentation
 ├── frontend/                   # Next.js frontend
 │   └── src/
-│       ├── app/               # Pages (dashboard, upload, train, predict, models)
-│       ├── components/        # React components
-│       └── lib/api/           # API client
+│       ├── app/                # Pages (dashboard, upload, train, predict, models)
+│       ├── components/         # React components
+│       └── lib/api/            # API client
+├── profiling/                  # Performance profiling
+│   ├── data/                   # Profiling datasets
+│   └── results/                # Profiling results
 ├── scripts/                    # Utility scripts
 └── docker-compose.yml          # Docker orchestration
 ```
@@ -38,7 +41,57 @@ c1-coursework/
 
 **Frontend**: Next.js 14, TypeScript, Tailwind CSS, Axios
 
-## Installation Guide
+## 2. Quick Start Guide
+
+### Option 1: Docker (Recommended)
+
+Just clone the repository and run:
+
+```bash
+git clone <repository-url>
+cd c1-coursework
+./scripts/docker_start.sh
+```
+
+To stop the application:
+```bash
+./scripts/docker_stop.sh
+```
+
+- Backend API: http://localhost:8000
+- Frontend: http://localhost:3000
+- API Documentation: http://localhost:8000/docs
+
+### Option 2: Local Deployment
+
+See [Local Deployment](#3-local-deployment) for installation and setup instructions.
+
+### Basic Workflow
+
+1. **Upload a dataset**: Navigate to http://localhost:3000/upload and upload a `.pkl` file containing:
+   - `X`: NumPy array of shape `(n_samples, 5)` - 5D input features
+   - `y`: NumPy array of shape `(n_samples,)` - 1D output targets
+
+2. **Train a model**: Go to http://localhost:3000/train, select your dataset, configure the model architecture and training parameters, then start training.
+
+3. **Make predictions**: Visit http://localhost:3000/predict, select a trained model, and enter 5D input vectors to get predictions.
+
+### Creating a Sample Dataset
+
+```python
+import numpy as np
+import pickle
+
+# Generate sample data
+X = np.random.randn(1000, 5)
+y = X[:, 0] * 2 + X[:, 1] * 3 - X[:, 2]
+
+# Save as .pkl
+with open('sample_dataset.pkl', 'wb') as f:
+    pickle.dump({'X': X, 'y': y}, f)
+```
+
+## 3. Local Deployment
 
 ### Prerequisites
 
@@ -46,7 +99,16 @@ c1-coursework/
 - Node.js 18.0 or higher
 - pip and npm package managers
 
-### Setup
+### Setup (for MacOS)
+
+**Quick Setup (Recommended)**:
+```bash
+git clone <repository-url>
+cd c1-coursework
+./scripts/simple_setup.sh
+```
+
+**Manual Setup**:
 
 1. **Clone the repository**:
    ```bash
@@ -60,102 +122,50 @@ c1-coursework/
    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    ```
 
-3. **Install backend dependencies**:
+3. **Install dependencies**:
    ```bash
+   # Backend dependencies (including docs and test)
    cd backend
-   pip install -e .
-   ```
-
-4. **Install documentation dependencies** (optional):
-   ```bash
    pip install -e ".[docs]"
+   pip install pytest pytest-cov httpx
+   cd ..
+
+   # Frontend dependencies
+   cd frontend
+   npm install
+   cd ..
    ```
 
-5. **Build the documentation** (optional):
+4. **Build the documentation**:
    ```bash
-   cd ..
    ./scripts/build_docs.sh
    # Documentation will be available at backend/docs/_build/html/index.html
    ```
 
-6. **Install frontend dependencies**:
+5. **Configure frontend environment**:
    ```bash
    cd frontend
-   npm install
-   ```
-
-7. **Configure frontend environment**:
-   ```bash
    cp .env.example .env.local
    # Edit .env.local if backend runs on a different URL
    ```
 
-## Quick Start Guide
-
-### Option 1: Run with Docker (Recommended)
-
-The easiest way to run the full application:
+### Running the Application
 
 ```bash
 # Start both backend and frontend
-./scripts/docker_start.sh
+./scripts/local_start.sh
 
 # Stop the application
-./scripts/docker_stop.sh
+./scripts/local_stop.sh
 ```
 
 - Backend API: http://localhost:8000
 - Frontend: http://localhost:3000
 - API Documentation: http://localhost:8000/docs
 
-### Option 2: Run Manually
-
-**Terminal 1 - Start the backend**:
-```bash
-source .venv/bin/activate
-cd backend
-python api.py
-```
-
-**Terminal 2 - Start the frontend**:
-```bash
-cd frontend
-npm run dev
-```
-
-### Basic Workflow
-
-1. **Upload a dataset**: Navigate to http://localhost:3000/upload and upload a `.npz` file containing:
-   - `X`: NumPy array of shape `(n_samples, 5)` - 5D input features
-   - `y`: NumPy array of shape `(n_samples,)` - 1D output targets
-
-2. **Train a model**: Go to http://localhost:3000/train, select your dataset, configure the model architecture and training parameters, then start training.
-
-3. **Make predictions**: Visit http://localhost:3000/predict, select a trained model, and enter 5D input vectors to get predictions.
-
-### Creating a Sample Dataset
-
-```python
-import numpy as np
-
-# Generate sample data
-X = np.random.randn(1000, 5)
-y = X[:, 0] * 2 + X[:, 1] * 3 - X[:, 2]
-
-# Save as .npz
-np.savez('sample_dataset.npz', X=X, y=y)
-```
-
-## Test Suite Guide
+## 4. Test Suite (Local Deployment Required)
 
 The backend includes a comprehensive test suite using pytest.
-
-### Install Test Dependencies
-
-```bash
-source .venv/bin/activate
-pip install pytest pytest-cov httpx
-```
 
 ### Running Tests
 
@@ -200,7 +210,7 @@ backend/test/
 └── test_trainer.py   # Training loop tests
 ```
 
-## License
+## 5. License
 
 MIT License - see [LICENSE](LICENSE) for details.
 

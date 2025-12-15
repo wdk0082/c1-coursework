@@ -24,3 +24,8 @@ Be careful about the 'chmod +x' thing for x.sh.
 
 Volumes or not?
 
+What is the 'documentation of environment variable'?
+
+For local installation, do we need a **single script** that can do (Installation + launch)?
+
+Wait, docker need to enable development workflow? (last sentence of Q7)
