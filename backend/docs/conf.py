@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 project = 'fivedreg'
-copyright = '2024, Zixuan Wang'
+copyright = '2025, Zixuan Wang'
 author = 'Zixuan Wang'
 release = '0.1.0'
 
