@@ -16,7 +16,7 @@ echo "Project root: $PROJECT_ROOT"
 echo ""
 
 # Build and start containers
-docker-compose up --build
+docker compose up --build
 
 echo ""
 echo "Application stopped."
