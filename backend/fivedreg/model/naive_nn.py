@@ -1,4 +1,8 @@
-"""Naive MLP models for 5D to 1D regression."""
+"""
+Neural network models for 5D to 1D regression.
+
+This module provides MLP (Multi-Layer Perceptron) models for regression tasks.
+"""
 
 from typing import List
 import torch
@@ -9,12 +13,36 @@ class NaiveMLP(nn.Module):
     """
     Simple Multi-Layer Perceptron for regression.
 
-    Architecture:
-        - Input layer: 5 features
-        - Hidden layers: Configurable number and sizes
-        - Output layer: 1 value
-        - Activation: ReLU
-        - Optional dropout for regularization
+    A feedforward neural network with configurable hidden layers,
+    activation functions, and dropout regularization.
+
+    Parameters
+    ----------
+    hidden_dims : list of int, default=[64, 32]
+        List of hidden layer dimensions.
+    dropout : float, default=0.0
+        Dropout probability (0 = no dropout).
+    activation : {'relu', 'tanh', 'sigmoid'}, default='relu'
+        Activation function to use between layers.
+
+    Attributes
+    ----------
+    hidden_dims : list of int
+        Hidden layer dimensions.
+    dropout : float
+        Dropout probability.
+    activation : torch.nn.Module
+        Activation function module.
+    network : torch.nn.Sequential
+        The sequential network layers.
+
+    Examples
+    --------
+    >>> model = NaiveMLP(hidden_dims=[128, 64], dropout=0.1)
+    >>> x = torch.randn(32, 5)  # batch of 32 samples
+    >>> output = model(x)
+    >>> output.shape
+    torch.Size([32, 1])
     """
 
     def __init__(
@@ -26,10 +54,14 @@ class NaiveMLP(nn.Module):
         """
         Initialize the MLP model.
 
-        Args:
-            hidden_dims: List of hidden layer dimensions. Default: [64, 32]
-            dropout: Dropout probability (0 = no dropout). Default: 0.0
-            activation: Activation function ('relu', 'tanh', 'sigmoid'). Default: 'relu'
+        Parameters
+        ----------
+        hidden_dims : list of int, default=[64, 32]
+            List of hidden layer dimensions.
+        dropout : float, default=0.0
+            Dropout probability (0 = no dropout).
+        activation : {'relu', 'tanh', 'sigmoid'}, default='relu'
+            Activation function to use.
         """
         super().__init__()
 
@@ -64,7 +96,12 @@ class NaiveMLP(nn.Module):
         self._initialize_weights()
 
     def _initialize_weights(self):
-        """Initialize network weights using Xavier/He initialization."""
+        """
+        Initialize network weights using Xavier/He initialization.
+
+        Uses He initialization for ReLU activation and Xavier initialization
+        for tanh/sigmoid activations.
+        """
         for module in self.modules():
             if isinstance(module, nn.Linear):
                 # He initialization for ReLU, Xavier for tanh/sigmoid
@@ -79,23 +116,33 @@ class NaiveMLP(nn.Module):
         """
         Forward pass through the network.
 
-        Args:
-            x: Input tensor of shape (batch_size, 5)
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input tensor of shape (batch_size, 5).
 
-        Returns:
-            Output tensor of shape (batch_size, 1)
+        Returns
+        -------
+        torch.Tensor
+            Output tensor of shape (batch_size, 1).
         """
         return self.network(x)
 
     def predict(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Make predictions (inference mode).
+        Make predictions in inference mode.
 
-        Args:
-            x: Input tensor of shape (batch_size, 5)
+        Sets the model to evaluation mode and disables gradient computation.
 
-        Returns:
-            Output tensor of shape (batch_size,) - squeezed
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input tensor of shape (batch_size, 5).
+
+        Returns
+        -------
+        torch.Tensor
+            Output tensor of shape (batch_size,), squeezed from (batch_size, 1).
         """
         self.eval()
         with torch.no_grad():
@@ -103,11 +150,25 @@ class NaiveMLP(nn.Module):
         return output.squeeze()
 
     def get_num_parameters(self) -> int:
-        """Return the total number of trainable parameters."""
+        """
+        Get the total number of trainable parameters.
+
+        Returns
+        -------
+        int
+            Total number of trainable parameters in the model.
+        """
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
     def __repr__(self) -> str:
-        """String representation of the model."""
+        """
+        Return string representation of the model.
+
+        Returns
+        -------
+        str
+            String showing model configuration and parameter count.
+        """
         n_params = self.get_num_parameters()
         return (
             f"NaiveMLP(hidden_dims={self.hidden_dims}, "
@@ -118,24 +179,30 @@ class NaiveMLP(nn.Module):
 
 def create_model(config: dict) -> NaiveMLP:
     """
-    Factory function to create a model from a config dictionary.
+    Factory function to create a model from a configuration dictionary.
 
-    Args:
-        config: Dictionary with model configuration. Expected keys:
-            - "hidden_dims": List[int] - Hidden layer dimensions
-            - "dropout": float - Dropout probability (optional, default: 0.0)
-            - "activation": str - Activation function (optional, default: "relu")
+    Parameters
+    ----------
+    config : dict
+        Dictionary with model configuration. Supported keys:
 
-    Returns:
-        Initialized NaiveMLP model
+        - **hidden_dims** : list of int - Hidden layer dimensions (required)
+        - **dropout** : float - Dropout probability (optional, default: 0.0)
+        - **activation** : str - Activation function (optional, default: 'relu')
 
-    Example:
-        config = {
-            "hidden_dims": [128, 64, 32],
-            "dropout": 0.1,
-            "activation": "relu"
-        }
-        model = create_model(config)
+    Returns
+    -------
+    NaiveMLP
+        Initialized NaiveMLP model instance.
+
+    Examples
+    --------
+    >>> config = {
+    ...     "hidden_dims": [128, 64, 32],
+    ...     "dropout": 0.1,
+    ...     "activation": "relu"
+    ... }
+    >>> model = create_model(config)
     """
     hidden_dims = config.get("hidden_dims", [64, 32])
     dropout = config.get("dropout", 0.0)

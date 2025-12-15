@@ -29,10 +29,12 @@ html_static_path = ['_static']
 
 # -- Extension configuration -------------------------------------------------
 
-# Napoleon settings for Google/NumPy style docstrings
-napoleon_google_docstring = True
+# Napoleon settings for NumPy style docstrings
+napoleon_google_docstring = False
 napoleon_numpy_docstring = True
 napoleon_include_init_with_doc = True
+napoleon_use_param = True
+napoleon_use_rtype = True
 
 # Autodoc settings
 autodoc_default_options = {

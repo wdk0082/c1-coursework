@@ -18,3 +18,5 @@ R2, training time, memory usage (train & inference)
 
 Do we need another way (from UI upload) to upload test data? (see Question 9 last sentence).
 
+Clean up dependencies structure (e.g. api & packages).
+

@@ -1,4 +1,9 @@
-"""Neural network trainer for 5D to 1D regression."""
+"""
+Neural network trainer for 5D to 1D regression.
+
+This module provides the NNTrainer class for training, validating,
+and evaluating neural network models.
+"""
 
 from typing import Dict, Any, Optional
 import numpy as np
@@ -14,7 +19,49 @@ class NNTrainer:
     """
     Trainer for neural network models.
 
-    Handles model instantiation, training loop, validation, and checkpointing.
+    Handles model instantiation, training loop, validation, checkpointing,
+    and evaluation.
+
+    Parameters
+    ----------
+    model_class : type or callable
+        Model class to instantiate (e.g., NaiveMLP) or factory function.
+    model_config : dict
+        Configuration dictionary for model initialization.
+    training_config : dict, optional
+        Training configuration with the following keys:
+
+        - **learning_rate** : float - Learning rate (default: 1e-3)
+        - **batch_size** : int - Batch size (default: 32)
+        - **epochs** : int - Number of epochs (default: 100)
+        - **weight_decay** : float - L2 regularization (default: 0.0)
+        - **checkpoint_dir** : str - Directory for checkpoints (default: './checkpoints')
+
+    device : str, optional
+        Device to use ('cuda', 'cpu', or None for auto-detect).
+
+    Attributes
+    ----------
+    model : torch.nn.Module
+        The neural network model.
+    device : torch.device
+        Device used for training.
+    criterion : torch.nn.Module
+        Loss function (MSELoss).
+    optimizer : torch.optim.Optimizer
+        Optimizer (Adam).
+    history : dict
+        Training history with 'train_loss' and 'val_loss' lists.
+
+    Examples
+    --------
+    >>> from fivedreg.model.naive_nn import NaiveMLP
+    >>> trainer = NNTrainer(
+    ...     model_class=NaiveMLP,
+    ...     model_config={"hidden_dims": [64, 32]},
+    ...     training_config={"epochs": 50, "learning_rate": 1e-3}
+    ... )
+    >>> result = trainer.fit(X_train, y_train, X_val, y_val)
     """
 
     def __init__(
@@ -27,16 +74,16 @@ class NNTrainer:
         """
         Initialize the trainer.
 
-        Args:
-            model_class: Model class to instantiate (e.g., NaiveMLP or create_model function)
-            model_config: Configuration dict for model initialization
-            training_config: Training configuration with keys:
-                - "learning_rate": float (default: 1e-3)
-                - "batch_size": int (default: 32)
-                - "epochs": int (default: 100)
-                - "weight_decay": float (default: 0.0)
-                - "checkpoint_dir": str (default: "./checkpoints")
-            device: Device to use ('cuda', 'cpu', or None for auto-detect)
+        Parameters
+        ----------
+        model_class : type or callable
+            Model class to instantiate (e.g., NaiveMLP) or factory function.
+        model_config : dict
+            Configuration dictionary for model initialization.
+        training_config : dict, optional
+            Training configuration. See class docstring for supported keys.
+        device : str, optional
+            Device to use ('cuda', 'cpu', or None for auto-detect).
         """
         # Set up device
         if device is None:
@@ -90,21 +137,30 @@ class NNTrainer:
         """
         Train the model.
 
-        Args:
-            X_train: Training features of shape (n_train, 5)
-            y_train: Training targets of shape (n_train,)
-            X_val: Validation features of shape (n_val, 5) (optional)
-            y_val: Validation targets of shape (n_val,) (optional)
-            verbose: If True, print training progress
+        Parameters
+        ----------
+        X_train : ndarray of shape (n_train, 5)
+            Training features.
+        y_train : ndarray of shape (n_train,)
+            Training targets.
+        X_val : ndarray of shape (n_val, 5), optional
+            Validation features.
+        y_val : ndarray of shape (n_val,), optional
+            Validation targets.
+        verbose : bool, default=True
+            If True, print training progress every 10 epochs.
 
-        Returns:
+        Returns
+        -------
+        dict
             Dictionary containing:
-                - "model": Trained model
-                - "history": Training history
-                - "best_epoch": Epoch with best validation loss
-                - "best_val_loss": Best validation loss achieved
-                - "training_time_seconds": Training time in seconds
-                - "training_memory_mb": Peak memory usage during training in MB
+
+            - **model** : torch.nn.Module - Trained model
+            - **history** : dict - Training history with loss values
+            - **best_epoch** : int - Epoch with best validation loss
+            - **best_val_loss** : float or None - Best validation loss achieved
+            - **training_time_seconds** : float - Total training time in seconds
+            - **training_memory_mb** : float - Peak memory usage in MB
         """
         # Start tracking time and memory
         start_time = time.time()
@@ -183,7 +239,19 @@ class NNTrainer:
         }
 
     def _train_epoch(self, train_loader: DataLoader) -> float:
-        """Train for one epoch."""
+        """
+        Train for one epoch.
+
+        Parameters
+        ----------
+        train_loader : DataLoader
+            Training data loader.
+
+        Returns
+        -------
+        float
+            Average training loss for the epoch.
+        """
         self.model.train()
         total_loss = 0.0
 
@@ -205,7 +273,19 @@ class NNTrainer:
         return total_loss / len(train_loader)
 
     def _validate(self, val_loader: DataLoader) -> float:
-        """Validate the model."""
+        """
+        Validate the model on validation data.
+
+        Parameters
+        ----------
+        val_loader : DataLoader
+            Validation data loader.
+
+        Returns
+        -------
+        float
+            Average validation loss.
+        """
         self.model.eval()
         total_loss = 0.0
 
@@ -226,14 +306,41 @@ class NNTrainer:
         y: np.ndarray,
         shuffle: bool
     ) -> DataLoader:
-        """Create a PyTorch DataLoader from numpy arrays."""
+        """
+        Create a PyTorch DataLoader from numpy arrays.
+
+        Parameters
+        ----------
+        X : ndarray
+            Input features.
+        y : ndarray
+            Target values.
+        shuffle : bool
+            Whether to shuffle the data.
+
+        Returns
+        -------
+        DataLoader
+            PyTorch DataLoader instance.
+        """
         X_tensor = torch.FloatTensor(X)
         y_tensor = torch.FloatTensor(y)
         dataset = TensorDataset(X_tensor, y_tensor)
         return DataLoader(dataset, batch_size=self.batch_size, shuffle=shuffle)
 
     def _save_checkpoint(self, epoch: int, val_loss: float, best: bool = False):
-        """Save model checkpoint."""
+        """
+        Save model checkpoint to disk.
+
+        Parameters
+        ----------
+        epoch : int
+            Current epoch number.
+        val_loss : float
+            Current validation loss.
+        best : bool, default=False
+            If True, save as best model checkpoint.
+        """
         checkpoint = {
             'epoch': epoch,
             'model_state_dict': self.model.state_dict(),
@@ -250,7 +357,11 @@ class NNTrainer:
         torch.save(checkpoint, path)
 
     def _load_best_checkpoint(self):
-        """Load the best model checkpoint."""
+        """
+        Load the best model checkpoint from disk.
+
+        Loads the model state from 'best_model.pt' in the checkpoint directory.
+        """
         path = self.checkpoint_dir / "best_model.pt"
         if path.exists():
             checkpoint = torch.load(path, map_location=self.device)
@@ -260,16 +371,22 @@ class NNTrainer:
         """
         Evaluate model on test set.
 
-        Args:
-            X_test: Test features of shape (n_test, 5)
-            y_test: Test targets of shape (n_test,)
+        Parameters
+        ----------
+        X_test : ndarray of shape (n_test, 5)
+            Test features.
+        y_test : ndarray of shape (n_test,)
+            Test targets.
 
-        Returns:
+        Returns
+        -------
+        dict
             Dictionary with evaluation metrics:
-                - "mse": Mean Squared Error
-                - "rmse": Root Mean Squared Error
-                - "mae": Mean Absolute Error
-                - "r2": R-squared (coefficient of determination)
+
+            - **mse** : float - Mean Squared Error
+            - **rmse** : float - Root Mean Squared Error
+            - **mae** : float - Mean Absolute Error
+            - **r2** : float - R-squared (coefficient of determination)
         """
         self.model.eval()
 
@@ -299,13 +416,20 @@ class NNTrainer:
         """
         Make predictions on new data.
 
-        Args:
-            X: Input features of shape (n_samples, 5)
-            track_memory: If True, also return memory usage in MB
+        Parameters
+        ----------
+        X : ndarray of shape (n_samples, 5)
+            Input features.
+        track_memory : bool, default=False
+            If True, also return peak memory usage in MB.
 
-        Returns:
-            If track_memory is False: Predictions as numpy array of shape (n_samples,)
-            If track_memory is True: Tuple of (predictions, memory_mb)
+        Returns
+        -------
+        predictions : ndarray of shape (n_samples,)
+            Predicted values. Returned alone if ``track_memory=False``.
+        memory_mb : float
+            Peak memory usage in MB. Only returned if ``track_memory=True``,
+            in which case return value is ``(predictions, memory_mb)``.
         """
         if track_memory:
             tracemalloc.start()
@@ -331,10 +455,12 @@ class NNTrainer:
 
     def save_model(self, filepath: str):
         """
-        Save the trained model.
+        Save the trained model to disk.
 
-        Args:
-            filepath: Path to save the model
+        Parameters
+        ----------
+        filepath : str
+            Path to save the model file.
         """
         torch.save({
             'model_state_dict': self.model.state_dict(),
@@ -344,10 +470,12 @@ class NNTrainer:
 
     def load_model(self, filepath: str):
         """
-        Load a trained model.
+        Load a trained model from disk.
 
-        Args:
-            filepath: Path to the saved model
+        Parameters
+        ----------
+        filepath : str
+            Path to the saved model file.
         """
         checkpoint = torch.load(filepath, map_location=self.device)
         self.model.load_state_dict(checkpoint['model_state_dict'])
