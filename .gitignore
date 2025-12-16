@@ -216,7 +216,6 @@ checkpoints/
 *.png
 
 _build/
-_static/
 _templates/
 
 /backend/data/
