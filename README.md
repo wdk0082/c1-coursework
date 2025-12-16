@@ -187,15 +187,29 @@ The backend includes a comprehensive test suite using pytest.
 
 ### Running Tests
 
-**Run all tests**:
+**Quick Start (Recommended)**:
 ```bash
-cd backend
-pytest
+./scripts/run_test.sh
 ```
 
-**Run with verbose output**:
+This script automatically activates the virtual environment and runs all tests with verbose output. You can also pass additional pytest arguments:
 ```bash
-pytest -v
+./scripts/run_test.sh --cov=fivedreg    # Run with coverage
+./scripts/run_test.sh test/test_api.py  # Run specific test file
+```
+
+**Manual Testing**:
+
+First, activate the virtual environment:
+```bash
+source .venv/bin/activate
+cd backend
+```
+
+Then run pytest commands:
+```bash
+pytest                # Run all tests
+pytest -v             # Run with verbose output
 ```
 
 **Run specific test files**:
