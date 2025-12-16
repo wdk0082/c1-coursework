@@ -23,7 +23,7 @@ fi
 
 cd "$DOCS_DIR"
 
-# Clean previous build (optional, uncomment if needed)
+# Clean previous build
 make clean
 
 # Build HTML documentation

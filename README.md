@@ -21,7 +21,8 @@ A full-stack application for training and deploying neural network models that p
   - [4. Test Suite (Local Deployment Required)](#4-test-suite-local-deployment-required)
     - [Running Tests](#running-tests)
     - [Test Structure](#test-structure)
-  - [5. License](#5-license)
+  - [5. Full Documentation](#5-full-documentation)
+  - [6. License](#6-license)
 
 ## 1. Project Description
 
@@ -127,6 +128,15 @@ git clone <repository-url>
 cd c1-coursework
 ./scripts/simple_setup.sh
 ```
+
+This script automatically:
+- Creates a Python virtual environment (`.venv`)
+- Installs backend dependencies (including test and docs packages)
+- Installs frontend dependencies
+- Configures frontend environment (`.env.local`)
+- Builds the [Full documentation](#5-full-documentation)
+
+After setup, you can [run tests](#4-test-suite-local-deployment-required) or [start the application](#running-the-application).
 
 **Manual Setup**:
 
@@ -242,6 +252,21 @@ backend/test/
 └── test_trainer.py   # Training loop tests
 ```
 
-## 5. License
+## 5. Full Documentation
+
+The backend includes comprehensive API documentation generated with Sphinx.
+
+If you followed the [Local Deployment](#3-local-deployment) setup (either via `./scripts/simple_setup.sh` or manual setup), the documentation has already been built. You can view it at:
+
+```
+backend/docs/_build/html/index.html
+```
+
+To rebuild the documentation after code changes:
+```bash
+./scripts/build_docs.sh
+```
+
+## 6. License
 
 MIT License - see [LICENSE](LICENSE) for details.
