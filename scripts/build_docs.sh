@@ -10,6 +10,17 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 DOCS_DIR="$PROJECT_ROOT/backend/docs"
 
+cd "$PROJECT_ROOT"
+
+# Check if virtual environment exists
+if [ ! -d ".venv" ]; then
+    echo "Error: Virtual environment not found. Please run ./scripts/simple_setup.sh first."
+    exit 1
+fi
+
+# Activate virtual environment
+source .venv/bin/activate
+
 echo "Building documentation for fivedreg..."
 echo "Project root: $PROJECT_ROOT"
 echo "Docs directory: $DOCS_DIR"
