@@ -219,3 +219,5 @@ _build/
 _templates/
 
 /backend/data/
+/.backend.pid
+/.frontend.pid
