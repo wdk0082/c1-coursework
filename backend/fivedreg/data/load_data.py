@@ -1,10 +1,3 @@
-"""
-Data loading utilities for 5D to 1D regression.
-
-This module provides functions for loading, validating, and preprocessing
-data from pickle or npz files.
-"""
-
 import pickle
 from pathlib import Path
 from typing import Tuple, Literal, Optional, Dict, Any

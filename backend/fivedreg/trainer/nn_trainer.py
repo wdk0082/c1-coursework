@@ -1,10 +1,3 @@
-"""
-Neural network trainer for 5D to 1D regression.
-
-This module provides the NNTrainer class for training, validating,
-and evaluating neural network models.
-"""
-
 from typing import Dict, Any, Optional
 import numpy as np
 import torch
@@ -18,40 +11,6 @@ import tracemalloc
 class NNTrainer:
     """
     Trainer for neural network models.
-
-    Handles model instantiation, training loop, validation, checkpointing,
-    and evaluation.
-
-    Parameters
-    ----------
-    model_class : type or callable
-        Model class to instantiate (e.g., NaiveMLP) or factory function.
-    model_config : dict
-        Configuration dictionary for model initialization.
-    training_config : dict, optional
-        Training configuration with the following keys:
-
-        - **learning_rate** : float - Learning rate (default: 1e-3)
-        - **batch_size** : int - Batch size (default: 32)
-        - **epochs** : int - Number of epochs (default: 100)
-        - **weight_decay** : float - L2 regularization (default: 0.0)
-        - **checkpoint_dir** : str - Directory for checkpoints (default: './checkpoints')
-
-    device : str, optional
-        Device to use ('cuda', 'cpu', or None for auto-detect).
-
-    Attributes
-    ----------
-    model : torch.nn.Module
-        The neural network model.
-    device : torch.device
-        Device used for training.
-    criterion : torch.nn.Module
-        Loss function (MSELoss).
-    optimizer : torch.optim.Optimizer
-        Optimizer (Adam).
-    history : dict
-        Training history with 'train_loss' and 'val_loss' lists.
 
     Examples
     --------

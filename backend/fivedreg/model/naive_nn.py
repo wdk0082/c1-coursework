@@ -1,9 +1,3 @@
-"""
-Neural network models for 5D to 1D regression.
-
-This module provides MLP (Multi-Layer Perceptron) models for regression tasks.
-"""
-
 from typing import List
 import torch
 import torch.nn as nn
@@ -12,37 +6,6 @@ import torch.nn as nn
 class NaiveMLP(nn.Module):
     """
     Simple Multi-Layer Perceptron for regression.
-
-    A feedforward neural network with configurable hidden layers,
-    activation functions, and dropout regularization.
-
-    Parameters
-    ----------
-    hidden_dims : list of int, default=[64, 32]
-        List of hidden layer dimensions.
-    dropout : float, default=0.0
-        Dropout probability (0 = no dropout).
-    activation : {'relu', 'tanh', 'sigmoid'}, default='relu'
-        Activation function to use between layers.
-
-    Attributes
-    ----------
-    hidden_dims : list of int
-        Hidden layer dimensions.
-    dropout : float
-        Dropout probability.
-    activation : torch.nn.Module
-        Activation function module.
-    network : torch.nn.Sequential
-        The sequential network layers.
-
-    Examples
-    --------
-    >>> model = NaiveMLP(hidden_dims=[128, 64], dropout=0.1)
-    >>> x = torch.randn(32, 5)  # batch of 32 samples
-    >>> output = model(x)
-    >>> output.shape
-    torch.Size([32, 1])
     """
 
     def __init__(
