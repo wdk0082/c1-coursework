@@ -53,3 +53,9 @@ Key Features
    test_suite/running_tests
    test_suite/test_structure
 
+.. toctree::
+   :maxdepth: 1
+   :caption: 5 Performance And Profiling
+
+   performance/profiling
+

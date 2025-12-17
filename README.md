@@ -2,6 +2,8 @@
 
 A full-stack application for training and deploying neural network models that perform 5-dimensional to 1-dimensional regression. The project consists of a FastAPI backend for model training and inference, and a Next.js frontend for interactive dataset management and model exploration. It includes a comprehensive test suite with coverage reporting and performance profiling tools for benchmarking model training across different dataset sizes and configurations.
 
+[[Full Documentation](#5-full-documentation)]
+
 ## Table of Contents
 
 - [5D Regression](#5d-regression)
@@ -16,13 +18,14 @@ A full-stack application for training and deploying neural network models that p
     - [Creating a Sample Dataset](#creating-a-sample-dataset)
   - [3. Local Deployment](#3-local-deployment)
     - [Prerequisites](#prerequisites)
-    - [Setup (for MacOS)](#setup-for-macos)
+    - [Setup](#setup)
     - [Running the Application](#running-the-application)
   - [4. Test Suite (Local Deployment Required)](#4-test-suite-local-deployment-required)
     - [Running Tests](#running-tests)
     - [Test Structure](#test-structure)
   - [5. Full Documentation](#5-full-documentation)
-  - [6. License](#6-license)
+  - [6. Performance and Profiling](#6-performance-and-profiling)
+  - [7. License](#7-license)
 
 ## 1. Project Description
 
@@ -36,7 +39,7 @@ This application provides an end-to-end machine learning workflow for regression
 ### Architecture
 
 ```
-c1-coursework/
+zw499/
 ├── backend/                    # Core ML library and FastAPI backend
 │   ├── api.py                  # API endpoints
 │   ├── fivedreg/               # Core ML library
@@ -71,7 +74,7 @@ Just clone the repository and run:
 
 ```bash
 git clone <repository-url>
-cd c1-coursework
+cd zw499
 ./scripts/docker_start.sh
 ```
 
@@ -120,12 +123,12 @@ with open('sample_dataset.pkl', 'wb') as f:
 - Node.js 18.0 or higher
 - pip and npm package managers
 
-### Setup (for MacOS)
+### Setup
 
 **Quick Setup (Recommended)**:
 ```bash
 git clone <repository-url>
-cd c1-coursework
+cd zw499
 ./scripts/simple_setup.sh
 ```
 
@@ -143,7 +146,7 @@ After setup, you can [run tests](#4-test-suite-local-deployment-required) or [st
 1. **Clone the repository**:
    ```bash
    git clone <repository-url>
-   cd c1-coursework
+   cd zw499
    ```
 
 2. **Create and activate a virtual environment**:
@@ -267,6 +270,10 @@ To rebuild the documentation after code changes:
 ./scripts/build_docs.sh
 ```
 
-## 6. License
+## 6. Performance and Profiling
+
+The project includes performance profiling tools for benchmarking model training across different dataset sizes and function types. For detailed profiling results and analysis, see the Performance and Profiling section in the [Full Documentation](#5-full-documentation).
+
+## 7. License
 
 MIT License - see [LICENSE](LICENSE) for details.

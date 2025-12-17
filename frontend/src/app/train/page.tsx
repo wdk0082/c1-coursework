@@ -17,7 +17,7 @@ export default function TrainModel() {
   const [dropout, setDropout] = useState('0.0');
   const [activation, setActivation] = useState('relu');
   const [learningRate, setLearningRate] = useState('0.001');
-  const [batchSize, setBatchSize] = useState('32');
+  const [batchSize, setBatchSize] = useState('256');
   const [epochs, setEpochs] = useState('100');
   const [weightDecay, setWeightDecay] = useState('0.0');
   const [splitRatios, setSplitRatios] = useState('0.7,0.15,0.15');

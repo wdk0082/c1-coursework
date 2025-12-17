@@ -82,7 +82,7 @@ def plot_function_type(
     ax1.set_title("Training Time vs Dataset Size")
     ax1.set_xticks(x)
     ax1.set_xticklabels(DATASET_SIZE_LABELS)
-    ax1.legend(fontsize=7)
+    ax1.legend(fontsize=7, markerscale=0.5, handlelength=4, handletextpad=0.8)
     ax1.grid(True, alpha=0.3)
 
     # Subplot 2: Memory Usage (train + inference)
@@ -99,7 +99,7 @@ def plot_function_type(
     ax2.set_title("Memory Usage vs Dataset Size")
     ax2.set_xticks(x)
     ax2.set_xticklabels(DATASET_SIZE_LABELS)
-    ax2.legend(fontsize=7)
+    ax2.legend(fontsize=7, markerscale=0.5, handlelength=4, handletextpad=0.8)
     ax2.grid(True, alpha=0.3)
 
     # Subplot 3: MSE (train + test)
@@ -116,7 +116,7 @@ def plot_function_type(
     ax3.set_title("MSE vs Dataset Size")
     ax3.set_xticks(x)
     ax3.set_xticklabels(DATASET_SIZE_LABELS)
-    ax3.legend(fontsize=7)
+    ax3.legend(fontsize=7, markerscale=0.5, handlelength=4, handletextpad=0.8)
     ax3.grid(True, alpha=0.3)
     # Use log scale if values vary widely
     mse_values = []
@@ -140,7 +140,7 @@ def plot_function_type(
     ax4.set_title("R² vs Dataset Size")
     ax4.set_xticks(x)
     ax4.set_xticklabels(DATASET_SIZE_LABELS)
-    ax4.legend(fontsize=7)
+    ax4.legend(fontsize=7, markerscale=0.5, handlelength=4, handletextpad=0.8)
     ax4.grid(True, alpha=0.3)
     ax4.set_ylim(-0.1, 1.05)  # R² typically between 0 and 1
 

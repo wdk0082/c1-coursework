@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Simple setup script for c1-coursework
+# Simple setup script for zw499
 # This script creates a virtual environment and installs all dependencies
 
 set -e
@@ -8,7 +8,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-echo "Setting up c1-coursework..."
+echo "Setting up zw499..."
 cd "$PROJECT_ROOT"
 
 # Create virtual environment if it doesn't exist

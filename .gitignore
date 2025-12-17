@@ -213,7 +213,7 @@ checkpoints/
 .DS_Store
 *.npz
 *.csv
-*.png
+/profiling/results/*.png
 
 _build/
 _templates/

@@ -46,7 +46,7 @@ The Docker installation provides a containerized environment with all dependenci
    .. code-block:: bash
 
       git clone <repository-url>
-      cd c1-coursework
+      cd zw499
 
 2. **Start the application**:
 
@@ -80,7 +80,7 @@ Use the provided setup script for automatic installation:
 .. code-block:: bash
 
    git clone <repository-url>
-   cd c1-coursework
+   cd zw499
    ./scripts/simple_setup.sh
 
 This script automatically:
@@ -101,7 +101,7 @@ If you prefer manual installation:
    .. code-block:: bash
 
       git clone <repository-url>
-      cd c1-coursework
+      cd zw499
 
 2. **Create and activate a Python virtual environment**:
 
